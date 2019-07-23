@@ -20,7 +20,7 @@ class RCNN(object):
         self.epochs = epochs
 
         # placeholders input, output, dropout
-        self.input_x = tf.placeholder(tf.float32, shape=[None, self.embedding_dim, self.sequence_length], name='input_x')
+        self.input_x = tf.placeholder(tf.float32, shape=[None, self.sequence_length, self.embedding_dim], name='input_x')
         self.input_y = tf.placeholder(tf.int32, shape=[None, num_classes], name='input_y')
         self.keep_prob = tf.placeholder(tf.float32, name='dropout_keep_prob')
 

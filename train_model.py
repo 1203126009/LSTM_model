@@ -12,7 +12,7 @@ from data_lstm_helper import load_data_and_labels, batch_iter
 import os
 import numpy as np
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+#os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Data loading params
 tf.flags.DEFINE_string("train_data_file", "./train_data.json", "Data source for the train data.")
@@ -43,7 +43,7 @@ for key, value in FLAGS.flag_values_dict().items():
     print("{}={}".format(key.upper(), value))
 
 print("Load data\n")
-_, x_train, y_train, x_test, y_test = load_data_and_labels(
+x_train, y_train, x_test, y_test = load_data_and_labels(
     FLAGS.train_data_file, FLAGS.embedding_dim, FLAGS.sequence_length)
 
 # train

@@ -54,9 +54,9 @@ def load_data_and_labels(train_data_file, dim, sequence_length):
             data = prepare_data(feas, dim, sequence_length)
             if count % 5 == 0:
                 test_labels.append(label)
-                test_datas.append(data)
+                test_datas.append(data.T)
             else:
-                train_datas.append(data)
+                train_datas.append(data.T)
                 train_labels.append(label)
             count += 1
 
