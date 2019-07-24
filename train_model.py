@@ -12,7 +12,7 @@ from data_lstm_helper import load_data_and_labels, batch_iter
 import os
 import numpy as np
 
-#os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Data loading params
 tf.flags.DEFINE_string("train_data_file", "./train_data.json", "Data source for the train data.")
@@ -28,10 +28,10 @@ tf.flags.DEFINE_float("learning_rate", 1e-3, "learning rate")
 
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
-tf.flags.DEFINE_integer("epochs", 200, "Number of training epochs (default: 200)")
+tf.flags.DEFINE_integer("epochs", 10000, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
-tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
-tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
+tf.flags.DEFINE_integer("checkpoint_every", 200, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("num_checkpoints", 100, "Number of checkpoints to store (default: 5)")
 
 # Misc Parameters
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device placement")
@@ -92,9 +92,9 @@ with tf.Graph().as_default():
             os.makedirs(checkpoint_dir)
         # 只保存最近的max_to_keep个检查点文件
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=FLAGS.num_checkpoints)
-
+        saver.restore(session,"./runs/1563875881/checkpoint/model-27000")
         # initialize all variables
-        session.run(tf.global_variables_initializer())
+        #session.run(tf.global_variables_initializer())
 
 
         def train_step(x_batch, y_batch):

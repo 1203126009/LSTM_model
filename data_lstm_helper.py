@@ -2,11 +2,11 @@
 # -*- coding:utf-8 -*-
 
 
-import jieba
-import collections
-import string
+#import jieba
+#import collections
+#import string
 import json
-from zhon.hanzi import punctuation
+#from zhon.hanzi import punctuation
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from tensorflow.contrib import keras as kr
@@ -40,7 +40,7 @@ def load_data_and_labels(train_data_file, dim, sequence_length):
     test_datas = []
     labels = []
     # 生成训练数据集
-    with open(train_data_file, 'r', encoding='utf-8') as f:
+    with open(train_data_file, 'r') as f:
         train_datas=[]
         train_labels=[]
         test_datas = []
