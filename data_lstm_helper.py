@@ -2,16 +2,12 @@
 # -*- coding:utf-8 -*-
 
 
-#import jieba
-#import collections
-#import string
 import json
-#from zhon.hanzi import punctuation
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from tensorflow.contrib import keras as kr
 
-def prepare_data(feas, dim=27, sequence_length=100):
+def prepare_data(feas, dim=28, sequence_length=100):
     data = np.zeros([dim, sequence_length])
     h, w = feas.shape
     if h != dim:
@@ -46,19 +42,30 @@ def load_data_and_labels(train_data_file, dim, sequence_length):
         test_datas = []
         test_labels = []
         count = 0
-        for line in f.readlines():
-            item = json.loads(line)
+        o_data = f.readlines()
+        rng = np.random.RandomState(10)
+        shuffle_indices = rng.permutation(np.arange(len(o_data)))
+        print(shuffle_indices)
+        #shuffled_data = o_data[shuffle_indices]
+        for line_num in shuffle_indices:
+            item = json.loads(o_data[line_num])
             label = int(item['label'])
             feas = np.array(item['data']).T
-            #print(feas.shape)
+            print(label, feas.shape)
+            _, fea_num = feas.shape
+            if(fea_num < 20):
+                continue
+            # with open('./data_0615.txt', 'a') as ddd:
+            #     ddd.write("%d\t%s\t%s\n"%(label, item['uid'], feas.shape))
             data = prepare_data(feas, dim, sequence_length)
-            if count % 5 == 0:
-                test_labels.append(label)
-                test_datas.append(data.T)
-            else:
-                train_datas.append(data.T)
+            if count % 5 != 0:
                 train_labels.append(label)
+                train_datas.append(data.T)
+            else:
+                test_datas.append(data.T)
+                test_labels.append(label)
             count += 1
+    print(len(train_labels), len(test_labels))
 
     label_encoder = LabelEncoder()
     integer_encoded = label_encoder.fit_transform(np.array(train_labels))
@@ -100,13 +107,13 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
 
 if __name__ == '__main__':
     train_datas, train_labels, test_datas, test_labels = \
-        load_data_and_labels('./train_data.json', 27, 100)
+        load_data_and_labels('./train_data_0615.json', 27, 100)
     print(len(train_datas), len(train_labels))
     print(len(test_datas), len(test_labels))
     # print(word2id['UNK'], word2id['PAD'])
     # print(train_datas.shape, train_labels.shape, test_datas.shape, test_labels.shape)
-    batchs = batch_iter(list(zip(train_datas, train_labels)), 64, 1)
+    batchs = batch_iter(list(zip(test_datas, test_labels)), 64, 1)
     for i, batch in enumerate(batchs):
         x_batch, y_batch = zip(*batch)
         print(i, len(x_batch), len(y_batch))
-        print(y_batch)
+        #print(y_batch)

@@ -21,6 +21,7 @@ class RCNN(object):
 
         # placeholders input, output, dropout
         self.input_x = tf.placeholder(tf.float32, shape=[None, self.sequence_length, self.embedding_dim], name='input_x')
+        print(self.input_x.name)
         self.input_y = tf.placeholder(tf.int32, shape=[None, num_classes], name='input_y')
         self.keep_prob = tf.placeholder(tf.float32, name='dropout_keep_prob')
 
@@ -59,7 +60,7 @@ class RCNN(object):
                                        name='conv_output')
 
             # conv ans
-            y = tf.nn.relu(tf.nn.bias_add(conv_output, conv_b), name='bias')
+            y = tf.nn.leaky_relu(tf.nn.bias_add(conv_output, conv_b), alpha=0.2, name='bias')
 
             # shape [batch_size, sequence_length, 1, filter_nums] ->
             # [batch_size, sequence_length, filter_nums]
@@ -79,11 +80,14 @@ class RCNN(object):
                 softmax_b = tf.Variable(tf.constant(0.1, shape=[num_classes], name='softmax_b'))
                 self.scores = tf.nn.xw_plus_b(self.y_dropout, softmax_w, softmax_b, name='scores')
                 self.predictions = tf.argmax(self.scores, 1, name='predictions')
+                print(self.predictions.name)
 
             # loss
             with tf.name_scope('loss'):
                 loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.scores, labels=self.input_y)
-                self.loss = tf.reduce_mean(loss)
+                reg = tf.contrib.layers.apply_regularization(tf.contrib.layers.l2_regularizer(1e-4),
+                                                             tf.trainable_variables())
+                self.loss = tf.reduce_mean(loss) + reg
 
             # accuracy
             with tf.name_scope('accuracy'):

@@ -27,10 +27,10 @@ tf.flags.DEFINE_integer("hidden_dim", 128, "the hidden unit number")
 tf.flags.DEFINE_float("learning_rate", 1e-3, "learning rate")
 
 # Training parameters
-tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
-tf.flags.DEFINE_integer("epochs", 10000, "Number of training epochs (default: 200)")
+tf.flags.DEFINE_integer("batch_size", 128, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("epochs", 1000, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
-tf.flags.DEFINE_integer("checkpoint_every", 200, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 100, "Number of checkpoints to store (default: 5)")
 
 # Misc Parameters
@@ -47,6 +47,7 @@ x_train, y_train, x_test, y_test = load_data_and_labels(
     FLAGS.train_data_file, FLAGS.embedding_dim, FLAGS.sequence_length)
 
 # train
+
 with tf.Graph().as_default():
     session = tf.Session()
     with session.as_default():
@@ -92,9 +93,9 @@ with tf.Graph().as_default():
             os.makedirs(checkpoint_dir)
         # 只保存最近的max_to_keep个检查点文件
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=FLAGS.num_checkpoints)
-        saver.restore(session,"./runs/1563875881/checkpoint/model-27000")
+        # saver.restore(session,"./runs/1563943313/checkpoint/model-80500")
         # initialize all variables
-        #session.run(tf.global_variables_initializer())
+        session.run(tf.global_variables_initializer())
 
 
         def train_step(x_batch, y_batch):
@@ -138,6 +139,7 @@ with tf.Graph().as_default():
             print("{}---step:{}, loss:{}, accuracy:{}".format(time_str, step, loss, accuracy))
 
             test_summary_writer.add_summary(summary, step)
+            return loss
 
 
         # Generate batch
@@ -152,7 +154,7 @@ with tf.Graph().as_default():
             train_step(x_batch, y_batch)
             current_step = tf.train.global_step(session, global_step)
             if current_step % FLAGS.evaluate_every == 0:
-                test_step(x_test, y_test)
+                current_loss = test_step(x_test, y_test)
 
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(session, checkpoint_dir, global_step=global_step)
